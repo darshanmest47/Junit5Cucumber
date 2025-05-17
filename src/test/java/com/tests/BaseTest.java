@@ -1,6 +1,8 @@
 package com.tests;
 
 import Utilities.ExcelDataLoader;
+import com.testutilities.PageObjects;
+import org.openqa.selenium.WebDriver;
 
 import java.io.FileInputStream;
 import java.util.LinkedHashMap;
@@ -11,10 +13,12 @@ import static com.testutilities.DriverFactory.initializeDriver;
 
 public class BaseTest {
 
-    public static ExcelDataLoader excelLoader;
-    public static Map<String, String> propertiesData = new LinkedHashMap<>();
+    protected static ExcelDataLoader excelLoader;
+    protected static Map<String, String> propertiesData = new LinkedHashMap<>();
+    private static final ThreadLocal<WebDriver> tlDriver = new ThreadLocal<>();
+    public static PageObjects pageObjects = null;
 
-    static {
+    protected void initMethod() {
         try {
             excelLoader = ExcelDataLoader.getInstance(".\\src\\test\\java\\TestData\\TestData.xlsx");
             FileInputStream fileInputStream = new FileInputStream(".\\src\\test\\resources\\config.properties");
@@ -23,12 +27,22 @@ public class BaseTest {
             for (Map.Entry<Object, Object> entry : properties.entrySet()) {
                 propertiesData.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
             }
-            initializeDriver().get(getValueFromKey("TESTURL"));
 
+            tlDriver.set(initializeDriver());
+            tlDriver.get().get(getValueFromKey("TESTURL"));
+            pageObjects = new PageObjects(tlDriver.get());
 
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static WebDriver getDriverStatic() {
+        return tlDriver.get();
+    }
+
+    public static void removeDriver() {
+        tlDriver.remove();
     }
 
     public static String getValueFromKey(String key) {

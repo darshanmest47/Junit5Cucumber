@@ -12,33 +12,31 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import static com.tests.BaseTest.getValueFromKey;
 
 public class DriverFactory {
+    private static final ThreadLocal<WebDriver> tlDriver = new ThreadLocal<>();
 
-    public static WebDriver initializeDriver(){
-        ThreadLocal<WebDriver> tlDriver=new ThreadLocal<>();
+    public static WebDriver initializeDriver() {
         if (tlDriver.get() == null) {
-            if(getValueFromKey("BROWSER").equalsIgnoreCase("chrome")){
+            if (getValueFromKey("BROWSER").equalsIgnoreCase("chrome")) {
                 WebDriverManager.chromedriver().setup();
                 ChromeOptions options = new ChromeOptions();
                 options.setAcceptInsecureCerts(true);
                 options.addArguments("--start-maximized", "--disable-infobars");
                 tlDriver.set(new ChromeDriver(options));
-
-            }else if(getValueFromKey("BROWSER").equalsIgnoreCase("firefox")){
+            } else if (getValueFromKey("BROWSER").equalsIgnoreCase("firefox")) {
                 WebDriverManager.firefoxdriver().setup();
-                FirefoxOptions options= new FirefoxOptions();
+                FirefoxOptions options = new FirefoxOptions();
                 options.setAcceptInsecureCerts(true);
                 options.addArguments("--start-maximized", "--disable-infobars");
                 tlDriver.set(new FirefoxDriver(options));
-            }else if(getValueFromKey("BROWSER").equalsIgnoreCase("edge")){
+            } else if (getValueFromKey("BROWSER").equalsIgnoreCase("edge")) {
                 WebDriverManager.edgedriver().setup();
-                EdgeOptions options= new EdgeOptions();
+                EdgeOptions options = new EdgeOptions();
                 options.setAcceptInsecureCerts(true);
                 options.addArguments("--start-maximized", "--disable-infobars");
                 tlDriver.set(new EdgeDriver(options));
-            }else{
+            } else {
                 System.out.println("Invalid browser");
             }
-
         }
         return tlDriver.get();
     }
